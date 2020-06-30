@@ -6,7 +6,7 @@ class InstaBot:
     temp = None
     def __init__(self, username, pw):
     
-        self.driver = webdriver.Chrome()
+        self.driver = webdriver.Chrome("C:/Users/czagnos/hello/InstaB_v1/chromedriver.exe")
         self.username = username
         self.driver.get("https://instagram.com")
         
@@ -30,40 +30,41 @@ class InstaBot:
         sleep(2)
 
     
+    def save_temp(self,temp):
+        store_temp = temp
+        return store_temp
 
 
-
-    def get_common_names(self,first_account,index):
-            def save_temp(temp):
-                store_temp = temp
-                return store_temp
-            temp = first_account
-            if(index == 0):
-                save_temp(temp)
-                return(print("First"))
-            
-
-            
-            return 
+    def get_common_names(self,first_account,temp):
+        
+        result = list(set(temp)&set(first_account))
+        
+        return result 
             
 
     def get_target_accounts_followers(self,accounts):
         accounts_arr = accounts.split('/')
         array_length = len(accounts_arr)
+        temp = None
         for i in range(array_length):
             
             self.driver.find_element_by_xpath("//input[@placeholder=\"Search\"]")\
             .send_keys(accounts_arr[i])
-            sleep(3)  
+            sleep(4)  
             self.driver.find_element_by_xpath("//a[contains(@href,'/{}')]".format(accounts_arr[i]))\
             .click()
-            sleep(2)  
+            sleep(5)  
             self.driver.find_element_by_xpath("//a[contains(@href,'/followers')]")\
             .click()
             target_followers = self._get_names()
-            sleep(2)
-            commons = self.get_common_names(target_followers,i)
-            print(commons)
+            sleep(3)
+            if i == 0:
+                temp = target_followers
+                continue
+            commons = self.get_common_names(target_followers,temp)
+            temp = commons
+        
+        print(commons)
 
     def get_unfollowers(self):
         self.driver.find_element_by_xpath("//a[contains(@href,'/{}')]".format(self.username))\
@@ -82,7 +83,7 @@ class InstaBot:
         print(not_following_back)
 
     def _get_names(self):
-        sleep(2)
+        sleep(3)
         sugs = self.driver.find_element_by_xpath('/html/body/div[4]/div/div/div[2]/ul') 
         self.driver.execute_script('arguments[0].scrollIntoView()', sugs)
         sleep(4)
@@ -90,7 +91,7 @@ class InstaBot:
         last_ht, ht = 0, 1
         while last_ht != ht:
             last_ht = ht
-            sleep(1)
+            sleep(2)
             ht = self.driver.execute_script("""
                 arguments[0].scrollTo(0, arguments[0].scrollHeight); 
                 return arguments[0].scrollHeight;
@@ -102,5 +103,5 @@ class InstaBot:
         return names
 
 my_bot = InstaBot('USER', 'PASS')
-my_bot.get_target_accounts_followers('ekinbayrakk/smdbcr')
+my_bot.get_target_accounts_followers('smdbcr/ekinbayrakk/zagnoscan')
 #my_bot.get_unfollowers()
