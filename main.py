@@ -1,6 +1,7 @@
 from selenium import webdriver
 from time import sleep
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver import ActionChains
 
 class InstaBot:
     temp = None
@@ -8,6 +9,7 @@ class InstaBot:
     
         self.driver = webdriver.Chrome("C:/Users/czagnos/hello/InstaB_v1/chromedriver.exe")
         self.username = username
+        self.pw = pw
         self.driver.get("https://instagram.com")
         
     
@@ -66,6 +68,39 @@ class InstaBot:
         
         print(commons)
 
+    def get_target_hashtags(self,hashtags):
+        hashtags_arr = hashtags.split('/')
+        hashtags_length = len(hashtags_arr)
+        
+        for j in range(hashtags_length):     
+            target_hashtags_sharp = self.find_correct_hashtags(hashtags_arr[j],'us')
+            target_hashtags       = self.find_correct_hashtags(hashtags_arr[j],'us')
+            target_hashtags_len = len(target_hashtags)
+            self.__init__(self.username,self.pw)            
+            for i in range(target_hashtags_len):
+                target_hashtags_sharp[i] = '#' + target_hashtags_sharp[i]
+                self.driver.find_element_by_xpath("//input[@placeholder=\"Search\"]")\
+                .send_keys(target_hashtags_sharp[i])
+                sleep(4)  
+                self.driver.find_element_by_xpath("//a[contains(@href,'/explore/tags/{}/')]".format(target_hashtags[i]))\
+                .click()
+                sleep(5)
+
+
+    def find_correct_hashtags(self,hashtag,country): #TODO open tagsfinder link according to country
+        self.driver.get("https://www.tagsfinder.com/en-us/similar/")
+        self.driver.find_element_by_xpath("//input[@name=\"hashtag\"]")\
+            .clear()
+        self.driver.find_element_by_xpath("//input[@name=\"hashtag\"]")\
+            .send_keys(hashtag)
+        self.driver.find_element_by_xpath("//button[contains(text(), 'Search!')]")\
+            .click()
+        sleep(3)
+        hashtagss = self.driver.find_elements_by_xpath("//div[@id=\"hashtagy\"]")
+        tempo = hashtagss[0].text.replace(' #',' ').replace('#',' ').split()
+        return tempo     
+
+
     def get_unfollowers(self):
         self.driver.find_element_by_xpath("//a[contains(@href,'/{}')]".format(self.username))\
             .click()
@@ -102,6 +137,7 @@ class InstaBot:
         self.driver.refresh()
         return names
 
-my_bot = InstaBot('USER', 'PASS')
-my_bot.get_target_accounts_followers('smdbcr/ekinbayrakk/zagnoscan')
+my_bot = InstaBot('zagnoscan', '14447403096')
+my_bot.get_target_hashtags('art')
+#my_bot.get_target_accounts_followers('smdbcr/ekinbayrakk/zagnoscan')
 #my_bot.get_unfollowers()
